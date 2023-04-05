@@ -39,6 +39,7 @@ def Ingest_Links(cursor, conn):
   for event, elem in context:
     if elem.tag.endswith('page'):
       title, links = page_get_meta(elem)
+      title = title.lower()
 
       # Insert the from article if not present
       cursor.execute("INSERT OR IGNORE INTO articles (title) VALUES (?)", (title,))
@@ -48,6 +49,8 @@ def Ingest_Links(cursor, conn):
       from_article_id = cursor.fetchone()[0]
 
       for link in links:
+        link = link.lower()
+
         # Insert the to_article if not present
         cursor.execute("INSERT OR IGNORE INTO articles (title) VALUES (?)", (link,))
 
