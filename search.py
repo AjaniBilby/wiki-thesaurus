@@ -57,13 +57,14 @@ def ShowResults():
     return
 
   nx = result_offset + result_size
-  formatted_results = "  " + "\n  ".join(f'{row[1]:.2f} {row[0]} {row[2]}' for row in results[result_offset:nx])
+  formatted_results = "\n".join(f'{row[1]:.2f} \033[36m{row[0]}\033[0m {row[2]}' for row in results[result_offset:nx])
   result_offset = nx
   print(formatted_results)
 
 
 
 def RunCommand(cmd):
+  global result_size
   cmd = cmd.split(" ")
 
   match cmd[0]:
@@ -71,6 +72,8 @@ def RunCommand(cmd):
       ShowResults()
     case ".algo":
       SelectAlgorithm(cmd[1], True)
+    case '.limit':
+      result_size = int(cmd[1])
     case ".exit":
       sys.exit(0)
     case _:
