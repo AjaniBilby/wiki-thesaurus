@@ -1,18 +1,26 @@
-WITH target_links AS (
-  SELECT to_article_id
-  FROM links
-  WHERE from_article_id = ? -- target ID
+WITH targets AS (
+	SELECT to_article_id as article_id
+	FROM links
+	WHERE from_article_id = ? -- target ID
 ),
-intersection_count AS (
-  SELECT l.from_article_id, COUNT(*) AS intersection
-  FROM links l
-  INNER JOIN target_links tl ON
-    l.to_article_id = tl.to_article_id
-  WHERE l.from_article_id != ? -- target ID
-  GROUP BY l.from_article_id
+intersections AS (
+	SELECT
+		links.to_article_id AS article_id,
+		COUNT(*) AS num
+	FROM links
+	WHERE links.to_article_id in targets
+	GROUP BY links.from_article_id
 ),
-SELECT articles.title, ic.similarity, ic.similarity as helper
-FROM intersection_count ic
-INNER JOIN articles ON ic.id = articles.id
-ORDER BY ic.similarity DESC
+jaccard_similarity AS (
+	SELECT ic.article_id as id,
+		ic.num as intersections,
+		uc.num as unions,
+		(CAST(ic.num AS FLOAT) / uc.num) AS similarity
+	FROM intersections ic
+	Inner JOIN unions uc ON ic.article_id = uc.article_id
+)
+SELECT articles.title, ic.num, ic.num
+FROM intersections ic
+INNER JOIN articles ON ic.article_id = articles.id
+ORDER BY ic.num DESC
 LIMIT 1000;
