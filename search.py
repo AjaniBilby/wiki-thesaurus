@@ -8,13 +8,15 @@ cursor = conn.cursor()
 algorithm_sql = ""
 results = None
 result_offset = 0
+result_size = 10
 
-def SelectAlgorithm(algo):
+def SelectAlgorithm(algo, display=False):
   global algorithm_sql
   with open("./algorithm/"+algo+'.sql', 'r') as f:
     algorithm_sql = f.read()
 
-  print(f'  Loaded algorithm {algo}')
+  if display:
+    print(f'  Loaded algorithm {algo}')
 
 SelectAlgorithm("jaccard")
 
@@ -54,8 +56,9 @@ def ShowResults():
     print('No search present')
     return
 
-  formatted_results = "  " + "\n  ".join(f'{row[1]:.4f} {row[0]} {row[2]}' for row in results[result_offset:result_offset+10])
-  result_offset = result_offset + 10
+  nx = result_offset + result_size
+  formatted_results = "  " + "\n  ".join(f'{row[1]:.2f} {row[0]} {row[2]}' for row in results[result_offset:nx])
+  result_offset = nx
   print(formatted_results)
 
 
@@ -67,7 +70,7 @@ def RunCommand(cmd):
     case ".more":
       ShowResults()
     case ".algo":
-      SelectAlgorithm(cmd[1])
+      SelectAlgorithm(cmd[1], True)
     case ".exit":
       sys.exit(0)
     case _:
