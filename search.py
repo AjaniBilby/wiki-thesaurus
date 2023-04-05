@@ -1,16 +1,22 @@
 import sqlite3
+import sys
 
 conn = sqlite3.connect('./data/simplewiki.db')
 cursor = conn.cursor()
 
 
-jaccard_sql = ""
+algorithm_sql = ""
 results = None
 result_offset = 0
 
-# read in the SQL file
-with open('jaccard.sql', 'r') as f:
-    jaccard_sql = f.read()
+def SelectAlgorithm(algo):
+  global algorithm_sql
+  with open("./algorithm/"+algo+'.sql', 'r') as f:
+    algorithm_sql = f.read()
+
+  print(f'  Loaded algorithm {algo}')
+
+SelectAlgorithm("jaccard")
 
 def ShowSimilar(target):
   cursor.execute("Select a.title from articles a where a.title like ? order by length(a.title) limit 5;", ( "%"+target+"%" ,))
@@ -19,7 +25,7 @@ def ShowSimilar(target):
 
   pass
 
-def search(target):
+def Search(target):
   global results
   global result_offset
 
@@ -33,7 +39,8 @@ def search(target):
 
   target_id = res[0]
 
-  cursor.execute(jaccard_sql, (target_id, target_id, target_id, target_id,))
+  placeholders = algorithm_sql.count("?")
+  cursor.execute(algorithm_sql, (target_id, )*placeholders)
   results = cursor.fetchall()
   result_offset = 0
 
@@ -47,20 +54,30 @@ def ShowResults():
     print('No search present')
     return
 
-  formatted_results = "  " + "\n  ".join(f'{row[3]:.4f} {row[0]} {row[1]}/{row[2]}' for row in results[result_offset:result_offset+10])
+  formatted_results = "  " + "\n  ".join(f'{row[1]:.4f} {row[0]} {row[2]}' for row in results[result_offset:result_offset+10])
   result_offset = result_offset + 10
   print(formatted_results)
 
+
+
 def RunCommand(cmd):
-  match cmd:
+  cmd = cmd.split(" ")
+
+  match cmd[0]:
     case ".more":
       ShowResults()
+    case ".algo":
+      SelectAlgorithm(cmd[1])
+    case ".exit":
+      sys.exit(0)
     case _:
-      print(f'Unknown command {cmd}')
+      print(f'Unknown command {cmd[0]}')
 
-while True:
-  cmd = input("> ")
-  if cmd[0] == ".":
-    RunCommand(cmd)
-  else:
-    search(cmd)
+
+if __name__ == '__main__':
+  while True:
+    cmd = input("> ")
+    if cmd[0] == ".":
+      RunCommand(cmd)
+    else:
+      Search(cmd)
