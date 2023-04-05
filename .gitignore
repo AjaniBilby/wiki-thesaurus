@@ -1,0 +1,5 @@
+# Ignore raw data
+simplewiki_articles/*
+*.xml
+*.dat
+*.db*
