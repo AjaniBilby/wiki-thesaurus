@@ -22,4 +22,11 @@ Start-up
 python search.py
 ```
 
-Simply enter in any word you want results for, after which you can enter `.more` for more results from that query, or enter a new query.
+Enter any text to perform a search, and start with a `.` to perform a command
+
+| Command | Action
+:-|:-
+`.next` | Will show the next `x` results from the previous search
+`.algo xxx` | Changes the search algorithm used, with the name corresponding to any algorithm in the folder `./algorithm/` (i.e. `.algo intersection` )
+`.limit xxx` | Will change the number of results shown per search based on the number used in place of the `xxx` (i.e. `.limit 20`)
+`.exit` | Ends the program
