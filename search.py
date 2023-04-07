@@ -21,7 +21,7 @@ def SelectAlgorithm(algo, display=False):
 SelectAlgorithm("jaccard")
 
 def ShowSimilar(target):
-  cursor.execute("Select a.title from articles a where a.title like ? order by length(a.title) limit 5;", ( "%"+target+"%" ,))
+  cursor.execute("Select a.title from articles a where a.title like ? order by length(a.title) limit 10;", ( "%"+target+"%" ,))
   results = cursor.fetchall()
   print("  Try: " + ", ".join(str(val[0]) for val in results))
 
@@ -31,15 +31,23 @@ def Search(target):
   global results
   global result_offset
 
+  target = target[0].upper() + target[1:]
+
   cursor.execute("SELECT id FROM articles WHERE title = ?", (target,))
   res = cursor.fetchone()
 
   if res is None:
-    print("No match")
     ShowSimilar(target)
     return
-
   target_id = res[0]
+
+  cursor.execute("select * from redirects where from_article_id= ?", (target_id,))
+  res = cursor.fetchone()
+  if res is not None:
+    target_id = res[1]
+    cursor.execute("SELECT title FROM articles WHERE id = ?", (target_id,))
+    res = cursor.fetchone()
+    print(f' redirect {res[0]}')
 
   placeholders = algorithm_sql.count("?")
   cursor.execute(algorithm_sql, (target_id, )*placeholders)
@@ -68,7 +76,7 @@ def RunCommand(cmd):
   cmd = cmd.split(" ")
 
   match cmd[0]:
-    case ".more":
+    case ".next":
       ShowResults()
     case ".algo":
       SelectAlgorithm(cmd[1], True)
