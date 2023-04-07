@@ -1,7 +1,7 @@
 WITH targets AS (
-  SELECT to_article_id as article_id
-  FROM links
-  WHERE from_article_id = ?
+	SELECT to_article_id as article_id
+	FROM links
+	WHERE from_article_id = ?
 ),
 target_count AS (
 	Select Count(*) as num
@@ -12,27 +12,28 @@ intersections AS (
 		links.from_article_id AS article_id,
 		COUNT(*) AS num
 	FROM links
-	WHERE links.from_article_id != ? and links.to_article_id in targets
+	WHERE links.from_article_id != ?
+		and links.to_article_id in targets
 	GROUP BY links.from_article_id
 ),
 unions AS (
-  SELECT l.from_article_id as article_id, COUNT(*) + tc.num AS num
-  FROM (
-    SELECT from_article_id, to_article_id
-    FROM links
-    WHERE from_article_id != ?
+	SELECT l.from_article_id as article_id, COUNT(*) + tc.num AS num
+	FROM (
+		SELECT from_article_id, to_article_id
+		FROM links
+		WHERE from_article_id != ?
 			and to_article_id not in targets -- remove double counts
-  ) l
+	) l
 	INNER JOIN target_count as tc on true
-  GROUP BY l.from_article_id
+	GROUP BY l.from_article_id
 ),
 jaccard_similarity AS (
-  SELECT ic.article_id as id,
-    ic.num as intersections,
-    uc.num as unions,
-    (CAST(ic.num AS FLOAT) / uc.num) AS similarity
-  FROM intersections ic
-  JOIN unions uc ON ic.article_id = uc.article_id
+	SELECT ic.article_id as id,
+		ic.num as intersections,
+		uc.num as unions,
+		(CAST(ic.num AS FLOAT) / uc.num) AS similarity
+	FROM intersections ic
+	JOIN unions uc ON ic.article_id = uc.article_id
 )
 SELECT articles.title, js.similarity, (js.intersections || '/' || js.unions) as helper
 FROM jaccard_similarity js
