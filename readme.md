@@ -5,6 +5,12 @@ This CLI tool attempts to get similar words to any given input based on the grap
 
 ## Installation
 
+### Using pre-built
+
+Clone this repository then extract the contents of [simplewiki.rar](https://github.com/AjaniBilby/wiki-thesaurus/releases/tag/v0.0.0) into the `./data/` folder.
+
+### Building from source
+
 Downloads and depacks the dataset of all english wikipedia articles
 ```
 python download.py
