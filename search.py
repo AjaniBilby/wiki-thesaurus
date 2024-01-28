@@ -1,4 +1,5 @@
 import sqlite3
+import time
 import sys
 
 conn = sqlite3.connect('./data/simplewiki.db')
@@ -49,10 +50,17 @@ def Search(target):
     res = cursor.fetchone()
     print(f' redirect {res[0]}')
 
+  start_time = time.time()
+
   placeholders = algorithm_sql.count("?")
   cursor.execute(algorithm_sql, (target_id, )*placeholders)
   results = cursor.fetchall()
   result_offset = 0
+
+  # End timer and display time in milliseconds
+  end_time = time.time()
+  execution_time_ms = (end_time - start_time) * 1000
+  print(f"{execution_time_ms:.2f} ms")
 
   ShowResults()
 

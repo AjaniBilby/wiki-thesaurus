@@ -106,6 +106,11 @@ def main():
   cursor.execute("CREATE TABLE IF NOT EXISTS links (from_article_id INTEGER, to_article_id INTEGER, UNIQUE(from_article_id, to_article_id))")
   cursor.execute("CREATE TABLE IF NOT EXISTS redirects (from_article_id INTEGER, to_article_id INTEGER, UNIQUE(from_article_id, to_article_id))")
 
+  cursor.execute("CREATE INDEX IF NOT EXISTS idx_links_from_to ON links(from_article_id, to_article_id)")
+  cursor.execute("CREATE INDEX IF NOT EXISTS idx_links_from ON links(from_article_id)")
+  cursor.execute("CREATE INDEX idx_links_to ON links(to_article_id)")
+  cursor.execute("CREATE INDEX idx_articles_id ON articles(id)")
+
 
   print("\nIngesting articles:")
   Ingest_Links(cursor=cursor, conn=conn)
