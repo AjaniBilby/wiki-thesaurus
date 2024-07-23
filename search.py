@@ -95,8 +95,24 @@ def RunCommand(cmd):
     case _:
       print(f'Unknown command {cmd[0]}')
 
+def DisplayCounts():
+  cursor.execute("SELECT COUNT(*) FROM articles")
+  article_count = cursor.fetchone()[0]
+
+  cursor.execute("SELECT COUNT(*) FROM redirects")
+  redirect_count = cursor.fetchone()[0]
+
+  cursor.execute("SELECT COUNT(*) FROM links")
+  link_count = cursor.fetchone()[0]
+
+  print(f"Number of")
+  print(f" - articles : {article_count}")
+  print(f" - links    : {link_count}")
+  print(f" - redirects: {redirect_count}")
+
 
 if __name__ == '__main__':
+  DisplayCounts()
   while True:
     cmd = input("> ")
     if cmd[0] == ".":
